@@ -22,9 +22,9 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Academic Management API' });
 });
 
-// TO DO: Student Routes will be added here by Team Member 2 (alberto)
-// const studentRoutes = require('./routes/student-routes');
-// app.use('/api', studentRoutes);
+
+const studentRoutes = require('./routes/student-routes');
+app.use('/api', studentRoutes);
 
 // --- Server Startup ---
 
