@@ -14,7 +14,7 @@ const api = {
   // 1. Fetch all students
   getAll: async () => {
     const response = await apiClient.get('/students');
-    return response.data.data;
+    return response.data.data; // Unwraps the array from the backend
   },
   
   // 2. Get a single student by ID
@@ -38,11 +38,13 @@ const api = {
     return apiClient.delete(`/students/${id}`);
   },
 
-  // 6. DASHBOARD STATISTICS 
+  // 6. DASHBOARD STATISTICS
   getStatistics: async () => {
     try {
-      const response = await apiClient.get('/statistics');
-      return response.data;
+
+      const response = await apiClient.get('/students/statistics');
+
+      return response.data.data || response.data; 
     } catch (error) {
       console.error("Error fetching dashboard statistics:", error);
       throw error;
