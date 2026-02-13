@@ -159,10 +159,8 @@ const StudentController = {
     });
   },
 
-  // 6. GET /api/statistics
+  // 6. GET /api/statistics - CORREGIDO
   getStatistics: (req, res) => {
-    // We need to run multiple queries. Since sqlite3 is async, we nest them.
-    // 1. General Stats (Total & Avg GPA)
     const generalSql = `
       SELECT 
         COUNT(*) as total_students, 
@@ -171,7 +169,6 @@ const StudentController = {
       WHERE is_active = 1
     `;
 
-    // 2. Stats by Major
     const majorSql = `
       SELECT major, COUNT(*) as count 
       FROM students 
@@ -179,7 +176,6 @@ const StudentController = {
       GROUP BY major
     `;
 
-    // 3. Stats by Semester
     const semesterSql = `
       SELECT semester, COUNT(*) as count 
       FROM students 
@@ -196,12 +192,23 @@ const StudentController = {
         db.all(semesterSql, [], (err, semesterStats) => {
           if (err) return handleSQLError(res, err);
 
-          // Return combined response
+          // PROCESAMIENTO: Convertimos los arreglos en objetos planos para el Frontend
+          const distMajor = {};
+          majorStats.forEach(item => { distMajor[item.major] = item.count; });
+
+          const distSemester = {};
+          semesterStats.forEach(item => { distSemester[item.semester] = item.count; });
+
+          // RESPUESTA: Enviamos números puros y nombres de campos correctos
           res.json({
-            total_students: generalStats.total_students,
-            average_gpa: generalStats.average_gpa ? generalStats.average_gpa.toFixed(2) : 0,
-            by_major: majorStats,
-            by_semester: semesterStats
+            success: true,
+            data: {
+              total_students: generalStats.total_students || 0,
+              // Enviamos como número puro (sin toFixed) para que el Frontend lo maneje
+              average_gpa: generalStats.average_gpa || 0, 
+              distribution_by_major: distMajor,
+              distribution_by_semester: distSemester
+            }
           });
         });
       });
